@@ -4,6 +4,7 @@
 
 1. Vagrant
 2. Python
+3. virtualbox
 3. (opt) direnv
 
 ## Basic Setup
