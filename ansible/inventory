@@ -1,0 +1,12 @@
+[client]
+127.0.0.1 ansible_connection=local
+
+[worker]
+master ansible_host=192.168.50.11
+node-1 ansible_host=192.168.50.12
+
+[worker:vars]
+ansible_connection=ssh
+ansible_user=vagrant
+ansible_ssh_pass=vagrant
+ansible_python_interpreter=/usr/bin/python3

@@ -1,0 +1,11 @@
+-
+  name: Test inventory
+  hosts: worker
+  tasks:
+    - name: Register hostname
+      command: hostname
+      register: hostname
+
+    - name: Print hostname
+      debug:
+        msg: "{{ hostname.stdout }}"

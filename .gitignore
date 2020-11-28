@@ -1,6 +1,6 @@
 kubeconfig
 .idea/
-vagrant/join
+vagrant/ansible/join
 
 # Created by https://www.toptal.com/developers/gitignore/api/pycharm,direnv,ansible,vagrant,python
 # Edit at https://www.toptal.com/developers/gitignore?templates=pycharm,direnv,ansible,vagrant,python

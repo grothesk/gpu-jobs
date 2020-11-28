@@ -1,0 +1,21 @@
+-
+  name: Run job on an available worker
+  hosts: "{{ groups['worker'] | random }}"
+  tasks:
+    - name: Register hostname
+      command: hostname
+      register: hostname
+
+    - name: Print hostname
+      debug:
+        msg: "Starting job on {{ hostname.stdout }}"
+
+    - name: Execute job
+      script: scripts/job.py
+      args:
+        executable: python3
+      register: output
+
+    - name: Print job output
+      debug:
+        msg: "Output from job: {{ output.stdout }}"

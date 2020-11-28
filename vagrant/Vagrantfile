@@ -1,56 +1,54 @@
-IMAGE_NAME = "hashicorp/bionic64"
-IMAGE_VERSION = "1.0.282"
+IMAGE_NAME = "bento/ubuntu-20.04"
+K8S_CLUSTER_NAME = "ai-uke"
 
-MASTER_MEMORY = 1024
-MASTER_CPUS = 2
+MASTERS_CPU = 2
+MASTERS_MEM = 4096
 
-N_NODE = 2
-NODE_MEMORY = 2048
-NODE_CPUS = 2
+NODES_NUM = 1
+NODES_CPU = 2
+NODES_MEM = 4096
 
-# All Vagrant configuration is done below. The "2" in Vagrant.configure
-# configures the configuration version (we support older styles for
-# backwards compatibility). Please don't change it unless you know what
-# you're doing.
+IP_BASE = "192.168.50"
+
+VAGRANT_DISABLE_VBOXSYMLINKCREATE=1
+
 Vagrant.configure("2") do |config|
     config.ssh.insert_key = false
 
-    config.vm.provider "virtualbox" do |v|
-        v.memory = 1024
-        v.cpus = 2
-    end
-
-    config.vm.define "k8s-master" do |master|
+    config.vm.define "master" do |master|
         master.vm.box = IMAGE_NAME
-        master.vm.box_version = IMAGE_VERSION
+        master.vm.network "private_network", ip: "#{IP_BASE}.11"
+        master.vm.hostname = "master"
         master.vm.provider "virtualbox" do |v|
-            v.memory = MASTER_MEMORY
-            v.cpus = MASTER_CPUS
+            v.memory = MASTERS_MEM
+            v.cpus = MASTERS_CPU
         end
-        master.vm.network "private_network", ip: "192.168.50.10"
-        master.vm.hostname = "k8s-master"
         master.vm.provision "ansible" do |ansible|
-            ansible.playbook = "master-playbook.yml"
+            ansible.playbook = "ansible/master-playbook.yml"
             ansible.extra_vars = {
-                node_ip: "192.168.50.10",
+                k8s_cluster_name: K8S_CLUSTER_NAME,
+                k8s_master_apiserver_advertise_address: "#{IP_BASE}.11",
+                k8s_master_pod_network_cidr: "192.168.112.0/20",
+                k8s_master_node_name: "master",
+                k8s_node_public_ip: "#{IP_BASE}.11"
             }
         end
     end
 
-    (1..N_NODE).each do |i|
+    (1..NODES_NUM).each do |i|
         config.vm.define "node-#{i}" do |node|
             node.vm.box = IMAGE_NAME
-            node.vm.box_version = IMAGE_VERSION
-            node.vm.provider "virtualbox" do |v|
-                v.memory = NODE_MEMORY
-                v.cpus = NODE_CPUS
-            end
-            node.vm.network "private_network", ip: "192.168.50.#{i + 10}"
+            node.vm.network "private_network", ip: "#{IP_BASE}.#{i + 11}"
             node.vm.hostname = "node-#{i}"
+            node.vm.provider "virtualbox" do |v|
+                v.memory = NODES_MEM
+                v.cpus = NODES_CPU
+            end
             node.vm.provision "ansible" do |ansible|
-                ansible.playbook = "node-playbook.yml"
+                ansible.playbook = "ansible/node-playbook.yml"
                 ansible.extra_vars = {
-                    node_ip: "192.168.50.#{i + 10}",
+                    k8s_cluster_name: K8S_CLUSTER_NAME,
+                    k8s_node_public_ip: "#{IP_BASE}.#{i + 11}"
                 }
             end
         end

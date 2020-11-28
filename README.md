@@ -4,22 +4,33 @@
 
 1. Vagrant
 2. Python
-3. virtualbox
-3. (opt) direnv
+3. VirtualBox
+4. kubectl
+5. (opt) direnv
 
-## Basic Setup
+## Installation
 
-1. Install ansible:
+Change directory to vagrant and setup the cluster - feel free to reconfigure the Vagrantfile according to your needs:
 
-    ```bash
-    pip install -r requirements.txt
-    ```
+```bash
+vagrant up
+```
 
-2. Change to the ```vagrant``` directory and create the k8s cluster:
+Change to the base folder of this project and configure kubectl to make use of the created kubeconfig file:
 
-    ```bash
-    vagrant up
-    ```
+```bash
+export KUBECONFIG="$(pwd)/kubeconfig"
+```
 
-3. Use the kubeconfig file created by vagrant to connect to the kube-apiserver
+Do not forget to unset KUBECONFIG when you are done!
 
+I recommend the use of direnv as described in this [repository](https://github.com/grothesk/direnv-kubeconfig).
+Maybe you like to install [py-dirk](https://github.com/grothesk/py-dirk).
+
+## Allow scheduling on master node
+
+You can allow scheduling pods on the master node like this:
+
+```bash
+kubectl taint node master node-role.kubernetes.io/master:NoSchedule-
+```
